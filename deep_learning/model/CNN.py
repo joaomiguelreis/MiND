@@ -20,7 +20,6 @@ class TwoLayerNet(torch.nn.Module):
         a Tensor of output data. We can use Modules defined in the constructor as
         well as arbitrary operators on Tensors.
         """
-        print(x.type())
         h_relu = self.linear1(x).clamp(min=0)
 
         h2_relu = self.linear2(h_relu).clamp(min=0)
