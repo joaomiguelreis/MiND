@@ -24,7 +24,7 @@ model = TwoLayerNet(D_in, H, D_out)
 # Construct our loss function and an Optimizer. The call to model.parameters()
 # in the SGD constructor will contain the learnable parameters of the two
 # nn.Linear modules which are members of the model.
-criterion = torch.nn.CrossEntropyLoss()
+criterion = torch.nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=1e-4)
 for t in range(500):
     # Forward pass: Compute predicted y by passing x to the model
