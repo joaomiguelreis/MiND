@@ -1,8 +1,6 @@
-kNNClassifier builds a multi-label classifier for the airfoil panels (1 classifier, as many outputs as panels on the airfoil)
-Cross-validation used as explained in Anabel's email. Figures in kNN_c/
-Best is 17NN
+kNNRegressor builds a single, multi-label regressor to predict collection efficiency on airfoil. Collection efficiency data is then converted to ice/no ice condition on all panels of the airfoil. Performances are evaluated on binary condition. Performances are evaluated with cross correlation. Function cross_val_score was not used as it only supports single label classifiers (I think)
+Score can be selected by uncommenting the wanted SCORE variable. SCORE=error is wrong predictions/all test samples (i.e. 1-accuracy). Plots (eps format) are saved to kNN_r/
 
-kNNRegressor same but with full collection efficiency. FIgures in kNN_r/
-Best is 1NN
-
-kNN_1Cell_1Classifier builds a classifier for each panel. cross_val_score is used to evaluate the chosen score
+kNNClassifier builds a single, multi-label classifier to predict ice/no-ice condition.
+Performances are evaluated with cross correlation. Function cross_val_score was not used as it only supports single label classifiers (I think)
+Score can be selected by uncommenting the wanted SCORE variable. SCORE=error is wrong predictions/all test samples (i.e. 1-accuracy). Plots (eps format) are saved to kNN_c/
