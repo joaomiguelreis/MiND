@@ -90,13 +90,7 @@ y = y.astype(np.int64)
 
 # Parallel?
 def procedure(i):  
-	print(i)   
-	PT_data = PT_data_generator(i)
-	PT_numpy = PT_data.values
-	X = PT_numpy[:,:-1]
-	y = PT_numpy[:,-1]
-	X = X.astype(np.float32)
-	y = y.astype(np.int64)            
+	print(i)               # just factoring out the
 	with io.capture_output() as captured:
 		precision = cross_val_score(net, X, y, scoring = 'precision', cv=10)
 		recall = cross_val_score(net, X, y, scoring = 'recall', cv=10)
