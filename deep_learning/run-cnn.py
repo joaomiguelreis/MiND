@@ -13,32 +13,30 @@ from sklearn.model_selection import cross_val_score
 import concurrent.futures
 import csv
 
-
-class TwoLayerNet(torch.nn.Module):
-    def __init__(self, D_in=5, H=10, D_out=2):
-        """
-        In the constructor we instantiate two nn.Linear modules and assign them as
-        member variables.
-        """
-        super(TwoLayerNet, self).__init__()
-        self.linear1 = torch.nn.Linear(D_in, H)
-        self.linear2 = torch.nn.Linear(H, 10)
-        self.linear3 = torch.nn.Linear(10, D_out)
+class CNNet(nn.Module):
+    def __init__(self):
+        super(CNNet, self).__init__()
+        self.conv1 = nn.Conv1d(1, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(1, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 2)
 
     def forward(self, x):
-        """
-        In the forward function we accept a Tensor of input data and we must return
-        a Tensor of output data. We can use Modules defined in the constructor as
-        well as arbitrary operators on Tensors.
-        """
-        h_relu = self.linear1(x).clamp(min=0)
-        h2_relu = self.linear2(h_relu).sigmoid()
-        y_pred = self.linear3(h2_relu)
-        return y_pred
+        x = x.unsqueeze(1)
+        print(x.shape)
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 
 ## Define the net to work with skorch
 net = NeuralNetClassifier(
-    TwoLayerNet,
+    CNNet,
     max_epochs=50,
     lr=0.01,
     criterion = torch.nn.CrossEntropyLoss,
@@ -101,7 +99,7 @@ def procedure(i):
             })
     return precision, recall
 
-testlog = 'results_run.csv'
+testlog = 'results_run_cnn.csv'
 testcolumns = ['abcsissa','precision_mean','precision_std', 'recall_mean', 'recall_std']
 with open(testlog,'w') as f:
 	logger = csv.DictWriter(f, testcolumns)

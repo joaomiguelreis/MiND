@@ -91,7 +91,7 @@ dict_score = cross_validate(net, X, y,
     cv=10)
 estimator = dict_score['estimator']
 torch.save({'estimator': estimator}
-    , 'model.pth.tar')
+    , 'model_reg.pth.tar')
 #recall = cross_val_score(net, X, y, scoring = 'recall', cv=10)
 
 #with open(testlog,'a') as f:

@@ -50,7 +50,7 @@ net = NeuralNetClassifier(
 
 
 # Data
-PT_data_complete = pd.read_excel("../PTResults-1000.xlsx")
+PT_data_complete = pd.read_excel("../Data_Colleff_Entire (1).xlsx")
 # clean up
 PT_data_complete = PT_data_complete.drop(columns = 'Unnamed: 0')
 print(PT_data_complete.columns)
@@ -101,7 +101,7 @@ def procedure(i):
             })
     return precision, recall
 
-testlog = 'results_run.csv'
+testlog = 'results_run_reg.csv'
 testcolumns = ['abcsissa','precision_mean','precision_std', 'recall_mean', 'recall_std']
 with open(testlog,'w') as f:
 	logger = csv.DictWriter(f, testcolumns)
