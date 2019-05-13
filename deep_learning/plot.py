@@ -14,7 +14,7 @@ plt.rc('font',**{'family':'serif','serif':['Palatino']})
 plt.rc('text', usetex=True)
 
 
-plt.plot(abscissa, prec,color='green',label='Tree depth 9')
+plt.plot(abscissa, prec,color='green',label='Neural Net')
 plt.fill_between(abscissa, prec-prec_std, prec+prec_std,  
     alpha=0.5,color='#e0e0e0')
 
@@ -29,7 +29,7 @@ plt.rc('font',**{'family':'serif','serif':['Palatino']})
 plt.rc('text', usetex=True)
 
 
-plt.plot(abscissa, rec,color='green',label='Tree depth 9')
+plt.plot(abscissa, rec,color='green',label='Neural Net')
 plt.fill_between(abscissa, rec-rec_std, rec+rec_std,  # fills area according to standard deviation
     alpha=0.5,color='#e0e0e0')
 

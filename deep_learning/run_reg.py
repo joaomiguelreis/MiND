@@ -15,7 +15,7 @@ import csv
 
 
 class TwoLayerNet(torch.nn.Module):
-    def __init__(self, D_in=5, H=10, D_out=2):
+    def __init__(self, D_in=5, H=10, D_out=1):
         """
         In the constructor we instantiate two nn.Linear modules and assign them as
         member variables.
