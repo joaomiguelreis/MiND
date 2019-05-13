@@ -8,12 +8,11 @@ from models import TwoLayerNetMult as TwoLayerNet
 ##################################
 
 ## PLOTTING RESULTS ##
-dict_score = torch.load('model_reg.pth.tar')
+dict_score = torch.load('model.pth.tar')
 estimator = dict_score['estimator']
 
-for model in estimator:
-	print(model)
-print(estimator(x))
+print(dict_score)
+
 print(Abc)
 
 

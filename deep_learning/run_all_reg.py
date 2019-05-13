@@ -50,7 +50,7 @@ net = NeuralNetClassifier(
 
 
 # Data
-PT_data_complete = pd.read_excel("../PTResults-1000.xlsx")
+PT_data_complete = pd.read_excel("../Data_Colleff_Entire (1).xlsx")
 # clean up
 PT_data_complete = PT_data_complete.drop(columns = 'Unnamed: 0')
 print(PT_data_complete.columns)
