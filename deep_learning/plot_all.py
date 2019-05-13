@@ -8,8 +8,8 @@ from run_all import TwoLayerNet
 ##################################
 
 ## PLOTTING RESULTS ##
-dict_score = torch.load('model.pth.tar')
-print(dict_score)
+dict_score = torch.load('model_reg.pth.tar')
+print(dict_score['estimator'])
 print(Abc)
 
 

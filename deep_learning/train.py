@@ -1,52 +1,85 @@
-import torch
-import pandas as pd
-from model.CNN import TwoLayerNet
+# Import general python packages
+import csv
+import concurrent.futures
+from IPython.utils import io
 
+# Import ML/DL related packages
+from pandas import read_excel
+from torch import save
+from torch.nn import CrossEntropyLoss
+from torch.optim import Adam
+from skorch import NeuralNetClassifier
+from sklearn.model_selection import cross_val_score, cross_validate
 
-# N is size of the training set; D_in is input dimension;
-# H is hidden dimension; D_out is output dimension.
-N, D_in, H, D_out = 30, 5, 10, 2
+# Import auxiliary functions
+from models import TwoLayerNet, TwoLayerNetMult
+from data_generators import Label_Gen, mult_label_gen
+from argparser import parser
 
-# Data
-PT_data = pd.read_excel("../PTResults_trimmed.xlsx")
-PT_tensor = torch.tensor(PT_data.values)
+## ARGUMENTS
+args = parser.parse_args()
 
-#Eventually change to batch training and shuffle what is training
-x_train = PT_tensor[:N,1:-1].float()
-y_train = PT_tensor[:N,-1].long()#.view(N,1)
+## MODEL
+if args.all:
+    Net = TwoLayerNetMult
+else:
+    Net = TwoLayerNet
 
-x_test = PT_tensor[N:,1:-1].float()
-y_test = PT_tensor[N:,-1].long()#.view(N,1)
+net = NeuralNetClassifier(
+    Net,
+    max_epochs=args.epochs,
+    lr=args.lr,
+    criterion = CrossEntropyLoss,
+    optimizer = Adam,
+    # Shuffle training data on each epoch
+    iterator_train__shuffle=True,
+    callbacks = []
+)
 
-# Construct our model by instantiating the class defined above
-model = TwoLayerNet(D_in, H, D_out)
+## DATA
+PT_data_complete = read_excel(args.datadir)
+# clean up
+PT_data_complete = PT_data_complete.drop(columns = 'Unnamed: 0')
+if args.all:
+    X,y = mult_label_gen(PT_data_complete)
+else:
+    PT_data = Label_Gen(PT_data_complete)
 
-# Construct our loss function and an Optimizer. The call to model.parameters()
-# in the SGD constructor will contain the learnable parameters of the two
-# nn.Linear modules which are members of the model.
-criterion = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
-for t in range(500):
-    # Forward pass: Compute predicted y by passing x to the model
-    y_pred = model(x_train)
+## TRAIN MODEL
+if args.all:
+    # One model for all ice regions
+    dict_score = cross_validate(net, X, y, 
+            scoring = ['precision', 'recall'], 
+            return_estimator = True, cv=10)
+    estimator = dict_score['estimator']
+    save({'estimator': estimator}, 
+            args.logdir+'model.pth.tar')
+else:
+    # One model for each ice region
+    def procedure(i):  
+        print('Processing model number ',i)   
+        X,y = PT_data[i]        
+        with io.capture_output() as captured:
+            precision = cross_val_score(net, X, y, scoring = 'precision', cv=10)
+            recall = cross_val_score(net, X, y, scoring = 'recall', cv=10)
+        with open(testlog,'a') as f:
+            logger = csv.DictWriter(f, testcolumns)
+            logger.writerow({'abcsissa':PT_data_complete.columns[i],
+                'precision_mean':precision.mean(),
+                'precision_std':precision.std(),
+                'recall_mean':recall.mean(),
+                'recall_std':recall.std()
+                })
+        return precision, recall
 
-    # Compute and print loss
-    loss = criterion(y_pred, y_train)
-    print(t, loss.item())
-    # Zero gradients, perform a backward pass, and update the weights.
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
+    testlog = args.logdir + 'scores.csv'
+    testcolumns = ['abcsissa','precision_mean','precision_std', 'recall_mean', 'recall_std']
+    with open(testlog,'w') as f:
+    	logger = csv.DictWriter(f, testcolumns)
+    	logger.writeheader()
 
-    # Test accuracy 
-    correct_train = (torch.argmax(y_pred, dim=-1)==y_train).sum()
-    acc_train = correct_train.float()/y_train.shape[0]
-
-    y_hat = model(x_test)
-    correct_test = (torch.argmax(y_hat, dim=-1)==y_test).sum()
-    acc_test = correct_test.float()/y_test.shape[0]
-
-    print('Training accuracy: ', acc_train.item())
-    print('Testing accuracy: ', acc_test.item())
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+            for precision, recall in executor.map(procedure, range(5, 181)):
+            	pass
 
 
